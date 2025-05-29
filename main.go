@@ -1,7 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/egaban/nesgo/internal/cartridge"
+	"github.com/egaban/nesgo/internal/core"
+)
 
 func main() {
-	fmt.Println("Hello world")
+	cartridge, err := cartridge.LoadCartridge("nestest.nes")
+
+	if err != nil {
+		fmt.Printf("Error loading cartridge: %v\n", err)
+	}
+
+	emulator := core.NewEmulator(cartridge)
+	emulator.Run()
 }

@@ -7,19 +7,23 @@ import (
 )
 
 type Cpu struct {
-	registers      Registers
-	bus            *bus.Bus
-	cyclesLeft     uint8
-	totalCycles    uint64
-	fetchedByte    byte
-	fetchedAddress uint16
+	bus                *bus.Bus
+	currentInstruction *Instruction
+	cyclesLeft         uint8
+	fetchedAddress     uint16
+	fetchedByte        byte
+	registers          Registers
+	status             Status
+	totalCycles        uint64
 }
 
 func NewCpu(bus *bus.Bus) *Cpu {
+	initInstructionTable()
 	return &Cpu{
-		registers:   newRegisters(),
 		bus:         bus,
 		cyclesLeft:  0,
+		registers:   newRegisters(),
+		status:      newStatus(),
 		totalCycles: 7,
 	}
 }
@@ -40,23 +44,24 @@ func (cpu *Cpu) printCurrentCpuStatus() {
 		cpu.registers.a,
 		cpu.registers.x,
 		cpu.registers.y,
-		cpu.registers.status,
+		cpu.status.byteValue,
 		cpu.registers.sp,
 		cpu.totalCycles,
 	)
 }
 
 func (cpu *Cpu) fetchAndExecute() uint8 {
-	instruction, err := cpu.fetch()
+	err := cpu.fetch()
 	if err != nil {
 		fmt.Printf("Error fetching instruction: %v\n", err)
-		return 0
+		panic("NOT IMPLEMENTED")
+		// return 0
 	}
-	pageCross := cpu.loadMemory(&instruction)
-	extraCycles := cpu.execute(&instruction)
+	pageCross := cpu.loadMemory()
+	extraCycles := cpu.execute()
 
-	numCycles := instruction.cycles + extraCycles
-	if pageCross && instruction.pageCrossExtraCycle {
+	numCycles := cpu.currentInstruction.cycles + extraCycles
+	if pageCross && cpu.currentInstruction.pageCrossExtraCycle {
 		numCycles += 1
 	}
 

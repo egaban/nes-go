@@ -62,3 +62,17 @@ func (bus *Bus) WriteByteAt(address uint16, data uint8) error {
 	bus.memory[address] = data
 	return nil
 }
+
+func (bus *Bus) WriteWordAt(address uint16, data uint16) error {
+	if int(address)+1 >= len(bus.memory) {
+		return errors.New("Write out of bounds")
+	}
+
+	lo := uint8(data)
+	hi := uint8(data >> 8)
+
+	bus.memory[address] = lo
+	bus.memory[address+1] = hi
+
+	return nil
+}

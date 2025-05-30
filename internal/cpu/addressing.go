@@ -4,9 +4,11 @@ type addressingMode int
 
 // Addressing Modes Enum
 const (
-	absX addressingMode = iota
-	absY
+	badAddressing addressingMode = iota
 	absolute
+	absoluteX
+	absoluteY
+	accumulator
 	immediate
 	implied
 	indirect
@@ -19,18 +21,18 @@ const (
 )
 
 // Returns if page cross happened.
-func (cpu *Cpu) loadMemory(instruction *Instruction) bool {
-	switch instruction.addressMode {
-	case absX:
-		return cpu.loadAbsX()
-	case absY:
-		return cpu.loadAbsY()
+func (cpu *Cpu) loadMemory() bool {
+	switch cpu.currentInstruction.addressMode {
 	case absolute:
 		return cpu.loadAbsolute()
+	case absoluteX:
+		return cpu.loadAbsX()
+	case absoluteY:
+		return cpu.loadAbsY()
+	case accumulator, implied:
+		return false
 	case immediate:
 		return cpu.loadImmediate()
-	case implied:
-		return false
 	case indirect:
 		return cpu.loadIndirect()
 	case indirectX:
@@ -50,6 +52,17 @@ func (cpu *Cpu) loadMemory(instruction *Instruction) bool {
 	}
 }
 
+func (cpu *Cpu) writeBack(value uint8) {
+	switch cpu.currentInstruction.addressMode {
+	case accumulator:
+		cpu.registers.a = value
+	case absolute, absoluteX, absoluteY, zeroPage, zeroPageX, zeroPageY:
+		cpu.bus.WriteByteAt(cpu.fetchedAddress, value)
+	default:
+		panic("Addressing mode writeback not implemented")
+	}
+}
+
 func (cpu *Cpu) loadAbsX() bool {
 	baseAddress, err := cpu.bus.ReadWordAt(cpu.registers.pc)
 	if err != nil {
@@ -57,7 +70,7 @@ func (cpu *Cpu) loadAbsX() bool {
 	}
 
 	cpu.fetchedAddress = baseAddress + uint16(cpu.registers.x)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(baseAddress)
+	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	if err != nil {
 		panic(err)
@@ -74,7 +87,7 @@ func (cpu *Cpu) loadAbsY() bool {
 	}
 
 	cpu.fetchedAddress = baseAddress + uint16(cpu.registers.y)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(baseAddress)
+	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	if err != nil {
 		panic(err)
@@ -120,11 +133,10 @@ func (cpu *Cpu) loadIndirect() bool {
 		panic(err)
 	}
 
-	address, err = cpu.bus.ReadWordAt(address)
+	cpu.fetchedAddress, err = cpu.bus.ReadSamePageWord(address)
 	if err != nil {
 		panic(err)
 	}
-	cpu.fetchedAddress = address
 
 	cpu.registers.pc += 2
 	return false
@@ -136,14 +148,8 @@ func (cpu *Cpu) loadIndirectX() bool {
 		panic(err)
 	}
 
-	// This is the zero page address
-	ptrAddress, err := cpu.bus.ReadSamePageWord(uint16(lo))
-	if err != nil {
-		panic(err)
-	}
-
 	// Effective address
-	cpu.fetchedAddress, err = cpu.bus.ReadSamePageWord(ptrAddress + uint16(cpu.registers.x))
+	cpu.fetchedAddress, err = cpu.bus.ReadSamePageWord(uint16(lo + cpu.registers.x))
 	if err != nil {
 		panic(err)
 	}
@@ -164,14 +170,8 @@ func (cpu *Cpu) loadIndirectY() bool {
 		panic(err)
 	}
 
-	// This is the zero page address
-	ptrAddress, err := cpu.bus.ReadSamePageWord(uint16(lo))
-	if err != nil {
-		panic(err)
-	}
-
 	// Base to the effective address
-	baseAddress, err := cpu.bus.ReadSamePageWord(ptrAddress)
+	baseAddress, err := cpu.bus.ReadSamePageWord(uint16(lo))
 	if err != nil {
 		panic(err)
 	}

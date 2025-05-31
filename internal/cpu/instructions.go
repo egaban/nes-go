@@ -31,7 +31,7 @@ func (cpu *Cpu) execute() uint8 {
 	case bpl:
 		return cpu.bpl()
 	case brk:
-		panic("brk not implemented yet.")
+		cpu.brk()
 	case bvc:
 		return cpu.bvc()
 	case bvs:
@@ -191,6 +191,10 @@ func (cpu *Cpu) bne() uint8 {
 
 func (cpu *Cpu) bpl() uint8 {
 	return cpu.branchIf(!cpu.status.get(StatusNegative))
+}
+
+func (cpu *Cpu) brk() uint8 {
+	panic("TODO")
 }
 
 func (cpu *Cpu) bvc() uint8 {

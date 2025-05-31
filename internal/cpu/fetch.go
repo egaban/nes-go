@@ -120,6 +120,7 @@ func initInstructionTable() {
 	instructionTable[0x10] = Instruction{opcode: bpl, addressMode: relative, cycles: 2}
 
 	// BRK
+	instructionTable[0x00] = Instruction{opcode: brk, addressMode: implied, cycles: 7}
 
 	// BVC
 	instructionTable[0x50] = Instruction{opcode: bvc, addressMode: relative, cycles: 2}

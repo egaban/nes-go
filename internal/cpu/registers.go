@@ -6,14 +6,19 @@ type Registers struct {
 	pc      uint16
 }
 
-func newRegisters() Registers {
+func newRegisters(initVector uint16) Registers {
 	return Registers{
 		a:  0x00,
 		x:  0x00,
 		y:  0x00,
 		sp: 0xFD,
-		// TODO: Actually, it is the init vector
-		pc: 0xC000,
+		pc: initVector,
 	}
 
+}
+
+func (registers *Registers) reset(initVector uint16) {
+	registers.a, registers.x, registers.y = 0x00, 0x00, 0x00
+	registers.pc = initVector
+	registers.sp = 0xFD
 }

@@ -19,10 +19,11 @@ type Cpu struct {
 
 func NewCpu(bus *bus.Bus) *Cpu {
 	initInstructionTable()
+	initVector, _ := bus.ReadWordAt(resetVectorAddress)
 	return &Cpu{
 		bus:         bus,
 		cyclesLeft:  0,
-		registers:   newRegisters(),
+		registers:   newRegisters(initVector),
 		status:      newStatus(),
 		totalCycles: 7,
 	}

@@ -5,7 +5,7 @@ const nmiHandlerAdress = 0xFFFA
 const resetVectorAddress = 0xFFFC
 
 func (cpu *Cpu) reset() {
-	initVector, _ := cpu.bus.ReadWordAt(resetVectorAddress)
+	initVector := cpu.bus.ReadWordAt(resetVectorAddress)
 	cpu.registers.reset(initVector)
 	cpu.status.byteValue = 0x00 | StatusUnused | StatusBreak | StatusInterrupt
 
@@ -33,12 +33,12 @@ func (cpu *Cpu) irq() {
 		return
 	}
 
-	irqHandler, _ := cpu.bus.ReadWordAt(irqHandlerAddress)
+	irqHandler := cpu.bus.ReadWordAt(irqHandlerAddress)
 	cpu.interrupt(irqHandler)
 }
 
 func (cpu *Cpu) nmi() {
-	nmiHandler, _ := cpu.bus.ReadWordAt(nmiHandlerAdress)
+	nmiHandler := cpu.bus.ReadWordAt(nmiHandlerAdress)
 	cpu.interrupt(nmiHandler)
 	cpu.cyclesLeft = 8
 }

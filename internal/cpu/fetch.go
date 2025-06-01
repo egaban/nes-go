@@ -335,11 +335,8 @@ func initInstructionTable() {
 }
 
 func (cpu *Cpu) fetch() error {
-	opcode, err := cpu.bus.ReadByteAt(cpu.registers.pc)
+	opcode := cpu.bus.ReadByteAt(cpu.registers.pc)
 	cpu.registers.pc += 1
-	if err != nil {
-		return err
-	}
 
 	cpu.currentInstruction = &instructionTable[opcode]
 	if cpu.currentInstruction.opcode == bad {

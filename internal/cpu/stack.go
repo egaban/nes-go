@@ -16,11 +16,7 @@ func (cpu *Cpu) stackPushAddress(address uint16) {
 
 func (cpu *Cpu) stackPopByte() (byte, error) {
 	stack_address := 0x0100 + uint16(cpu.registers.sp)
-	result, err := cpu.bus.ReadByteAt(stack_address + 1)
-
-	if err != nil {
-		return 0, err
-	}
+	result := cpu.bus.ReadByteAt(stack_address + 1)
 
 	cpu.registers.sp += 1
 	return result, nil
@@ -28,11 +24,7 @@ func (cpu *Cpu) stackPopByte() (byte, error) {
 
 func (cpu *Cpu) stackPopAddress() (uint16, error) {
 	stack_address := 0x0100 + uint16(cpu.registers.sp)
-	result, err := cpu.bus.ReadWordAt(stack_address + 1)
-
-	if err != nil {
-		return 0, err
-	}
+	result := cpu.bus.ReadWordAt(stack_address + 1)
 
 	cpu.registers.sp += 2
 	return result, nil

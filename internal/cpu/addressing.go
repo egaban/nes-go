@@ -64,61 +64,37 @@ func (cpu *Cpu) writeBack(value uint8) {
 }
 
 func (cpu *Cpu) loadAbsX() bool {
-	baseAddress, err := cpu.bus.ReadWordAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	baseAddress := cpu.bus.ReadWordAt(cpu.registers.pc)
 
 	cpu.fetchedAddress = baseAddress + uint16(cpu.registers.x)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
-
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	cpu.registers.pc += 2
 	return didPageCross(cpu.fetchedAddress, baseAddress)
 }
 
 func (cpu *Cpu) loadAbsY() bool {
-	baseAddress, err := cpu.bus.ReadWordAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	baseAddress := cpu.bus.ReadWordAt(cpu.registers.pc)
 
 	cpu.fetchedAddress = baseAddress + uint16(cpu.registers.y)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
-
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	cpu.registers.pc += 2
 	return didPageCross(cpu.fetchedAddress, baseAddress)
 }
 
 func (cpu *Cpu) loadAbsolute() bool {
-	address, err := cpu.bus.ReadWordAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	address := cpu.bus.ReadWordAt(cpu.registers.pc)
 
 	cpu.fetchedAddress = address
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(address)
-
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(address)
 
 	cpu.registers.pc += 2
 	return false
 }
 
 func (cpu *Cpu) loadImmediate() bool {
-	fetchedByte, err := cpu.bus.ReadByteAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	fetchedByte := cpu.bus.ReadByteAt(cpu.registers.pc)
 
 	cpu.fetchedAddress = cpu.registers.pc
 	cpu.fetchedByte = fetchedByte
@@ -128,70 +104,43 @@ func (cpu *Cpu) loadImmediate() bool {
 }
 
 func (cpu *Cpu) loadIndirect() bool {
-	address, err := cpu.bus.ReadWordAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	address := cpu.bus.ReadWordAt(cpu.registers.pc)
 
-	cpu.fetchedAddress, err = cpu.bus.ReadSamePageWord(address)
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedAddress = cpu.bus.ReadSamePageWord(address)
 
 	cpu.registers.pc += 2
 	return false
 }
 
 func (cpu *Cpu) loadIndirectX() bool {
-	lo, err := cpu.bus.ReadByteAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	lo := cpu.bus.ReadByteAt(cpu.registers.pc)
 
 	// Effective address
-	cpu.fetchedAddress, err = cpu.bus.ReadSamePageWord(uint16(lo + cpu.registers.x))
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedAddress = cpu.bus.ReadSamePageWord(uint16(lo + cpu.registers.x))
 
 	// Effective content
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	cpu.registers.pc += 1
 	return false
 }
 
 func (cpu *Cpu) loadIndirectY() bool {
-	lo, err := cpu.bus.ReadByteAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	lo := cpu.bus.ReadByteAt(cpu.registers.pc)
 
 	// Base to the effective address
-	baseAddress, err := cpu.bus.ReadSamePageWord(uint16(lo))
-	if err != nil {
-		panic(err)
-	}
+	baseAddress := cpu.bus.ReadSamePageWord(uint16(lo))
 
 	// Effective address
 	cpu.fetchedAddress = baseAddress + uint16(cpu.registers.y)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	cpu.registers.pc += 1
 	return didPageCross(baseAddress, cpu.fetchedAddress)
 }
 
 func (cpu *Cpu) loadRelative() bool {
-	offset, err := cpu.bus.ReadByteAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	offset := cpu.bus.ReadByteAt(cpu.registers.pc)
 
 	cpu.registers.pc += 1
 	cpu.fetchedAddress = cpu.registers.pc + uint16(int8(offset))
@@ -200,32 +149,20 @@ func (cpu *Cpu) loadRelative() bool {
 }
 
 func (cpu *Cpu) loadZeroPage() bool {
-	lo, err := cpu.bus.ReadByteAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	lo := cpu.bus.ReadByteAt(cpu.registers.pc)
 
 	cpu.fetchedAddress = uint16(lo)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	cpu.registers.pc += 1
 	return false
 }
 
 func (cpu *Cpu) loadZeroPageX() bool {
-	lo, err := cpu.bus.ReadByteAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	lo := cpu.bus.ReadByteAt(cpu.registers.pc)
 
 	cpu.fetchedAddress = uint16(lo + cpu.registers.x)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	cpu.registers.pc += 1
 	return false
@@ -233,16 +170,10 @@ func (cpu *Cpu) loadZeroPageX() bool {
 }
 
 func (cpu *Cpu) loadZeroPageY() bool {
-	lo, err := cpu.bus.ReadByteAt(cpu.registers.pc)
-	if err != nil {
-		panic(err)
-	}
+	lo := cpu.bus.ReadByteAt(cpu.registers.pc)
 
 	cpu.fetchedAddress = uint16(lo + cpu.registers.y)
-	cpu.fetchedByte, err = cpu.bus.ReadByteAt(cpu.fetchedAddress)
-	if err != nil {
-		panic(err)
-	}
+	cpu.fetchedByte = cpu.bus.ReadByteAt(cpu.fetchedAddress)
 
 	cpu.registers.pc += 1
 	return false

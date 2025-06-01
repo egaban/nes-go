@@ -1,14 +1,16 @@
-package core
+package nes
 
 import (
 	"github.com/egaban/nesgo/internal/bus"
 	"github.com/egaban/nesgo/internal/cartridge"
 	"github.com/egaban/nesgo/internal/cpu"
+	"github.com/egaban/nesgo/internal/ppu"
 )
 
 type Emulator struct {
 	cpu *cpu.Cpu
-	bus *bus.Bus
+	ppu *ppu.Ppu
+	bus *bus.CpuBus
 }
 
 func NewEmulator(cartridge *cartridge.Cartridge) *Emulator {

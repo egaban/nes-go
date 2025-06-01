@@ -7,7 +7,7 @@ import (
 )
 
 type Cpu struct {
-	bus                *bus.Bus
+	bus                *bus.CpuBus
 	currentInstruction *Instruction
 	cyclesLeft         uint8
 	fetchedAddress     uint16
@@ -17,9 +17,9 @@ type Cpu struct {
 	totalCycles        uint64
 }
 
-func NewCpu(bus *bus.Bus) *Cpu {
+func NewCpu(bus *bus.CpuBus) *Cpu {
 	initInstructionTable()
-	initVector, _ := bus.ReadWordAt(resetVectorAddress)
+	initVector := bus.ReadWordAt(resetVectorAddress)
 	return &Cpu{
 		bus:         bus,
 		cyclesLeft:  0,

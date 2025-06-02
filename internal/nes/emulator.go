@@ -11,18 +11,36 @@ type Emulator struct {
 	cpu *cpu.Cpu
 	ppu *ppu.Ppu
 	bus *bus.CpuBus
+
+	totalCycles int64
 }
 
 func NewEmulator(cartridge *cartridge.Cartridge) *Emulator {
-	bus := bus.NewBus(cartridge)
+	ppu := ppu.NewPpu()
+	bus := bus.NewBus(ppu)
+
+	ppu.LoadCartridge(cartridge)
+	bus.LoadCartridge(cartridge)
+
 	return &Emulator{
 		cpu: cpu.NewCpu(bus),
 		bus: bus,
+		ppu: ppu,
 	}
 }
 
-func (emulator *Emulator) Run() {
+func (e *Emulator) Run() {
 	for {
-		emulator.cpu.Tick()
+		e.Tick()
 	}
+}
+
+func (e *Emulator) Reset() {
+	e.cpu.Reset()
+	e.totalCycles = 0
+}
+
+func (e *Emulator) Tick() {
+	e.cpu.Tick()
+	e.totalCycles += 1
 }

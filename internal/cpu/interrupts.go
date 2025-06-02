@@ -4,7 +4,7 @@ const irqHandlerAddress = 0xFFFE
 const nmiHandlerAdress = 0xFFFA
 const resetVectorAddress = 0xFFFC
 
-func (cpu *Cpu) reset() {
+func (cpu *Cpu) Reset() {
 	initVector := cpu.bus.ReadWordAt(resetVectorAddress)
 	cpu.registers.reset(initVector)
 	cpu.status.byteValue = 0x00 | StatusUnused | StatusBreak | StatusInterrupt

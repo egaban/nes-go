@@ -11,30 +11,38 @@ type CpuBus struct {
 	cartridge *cartridge.Cartridge
 }
 
-func NewBus(cartridge *cartridge.Cartridge) *CpuBus {
+func NewBus(ppu interfaces.PpuRegisters) *CpuBus {
 	result := &CpuBus{
 		ram:       [2 * 1024]byte{0},
-		cartridge: cartridge,
+		cartridge: nil,
+		ppu:       ppu,
 	}
 
 	return result
 }
 
+func (b *CpuBus) LoadCartridge(cartridge *cartridge.Cartridge) {
+	b.cartridge = cartridge
+}
+
 func (b *CpuBus) ReadByteAt(address uint16) byte {
-	if address < 0x2000 {
+	if value, success := b.cartridge.TryReadPrgAt(address); success {
+		return value
+	} else if address < 0x2000 {
 		return b.ram[address&0x7FF]
 	} else if address < 0x4000 {
-		return b.ppu.ReadByteAt(address & 0x0007)
+		return b.ppu.ReadRegister(address & 0x0007)
 	}
-
-	panic("ReadByteAt: Address out of bounds: " + string(address))
+	return 0x00
 }
 
 func (b *CpuBus) WriteByteAt(address uint16, data uint8) {
-	if address < 0x2000 {
+	if b.cartridge.TryWritePrgAt(address, data) {
+		return
+	} else if address < 0x2000 {
 		b.ram[address&0x7FF] = data
 	} else if address < 0x4000 {
-		b.ppu.WriteByteAt(address, data)
+		b.ppu.WriteRegister(address&0x0007, data)
 	}
 }
 

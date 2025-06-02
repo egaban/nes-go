@@ -11,6 +11,6 @@ type WordMemory interface {
 }
 
 type PpuRegisters interface {
-	ReadByteAt(address uint16) byte
-	WriteByteAt(address uint16, data byte)
+	ReadRegister(address uint16) byte
+	WriteRegister(address uint16, data byte)
 }

@@ -1,14 +1,24 @@
 package ppu
 
-import "github.com/egaban/nesgo/internal/cartridge"
+import (
+	"github.com/egaban/nesgo/internal/cartridge"
+	"github.com/egaban/nesgo/internal/sdl"
+)
 
 type Ppu struct {
-	bus Bus
+	bus       Bus
+	registers Registers
+	renderer  *sdl.Renderer
+
+	addressLatch bool
+	dataBuffer   byte
+	address      uint16
 }
 
-func NewPpu() *Ppu {
+func NewPpu(renderer *sdl.Renderer) *Ppu {
 	return &Ppu{
-		bus: newPpuBus(),
+		bus:      newPpuBus(),
+		renderer: renderer,
 	}
 }
 
@@ -18,30 +28,45 @@ func (p *Ppu) LoadCartridge(cartridge *cartridge.Cartridge) {
 
 func (p *Ppu) Tick() {}
 
+func (p *Ppu) ClearScreen() {
+	p.renderer.Clear()
+}
+
 // This is the CPU interface for the PPU.
 func (p *Ppu) ReadRegister(address uint16) byte {
 	address &= 0x0007 // Just to be sure the CPU isn't doing anything wrong.
 
 	switch address {
 	case 0x0000: // PPU Control Register
-		break
+		return 0
 	case 0x0001: // PPU Mask Register
-		break
+		return 0
 	case 0x0002: // PPU Status Register
-		break
+		p.registers.Status |= statusVerticalBlank // TEMPORARY
+		result := (p.registers.Status & 0xE0) | (p.dataBuffer & 0x1F)
+		p.registers.Status &^= statusVerticalBlank
+		p.addressLatch = false
+		return result
 	case 0x0003: // OAM Address Register
-		break
+		return 0
 	case 0x0004: // OAM Data Register
-		break
+		return 0
 	case 0x0005: // PPU Scroll Register
-		break
+		return 0
 	case 0x0006: // PPU Address Register
-		break
+		return 0
 	case 0x0007: // PPU Data Register
-		break
-	}
+		result := p.dataBuffer
+		p.dataBuffer = p.bus.ReadByteAt(p.address)
 
-	panic("PPU write not implemented")
+		if p.address < 0x3F00 {
+			result = p.dataBuffer
+		}
+
+		return result
+	default:
+		panic("Unknown PPU register address")
+	}
 }
 
 // This is the CPU interface for the PPU.
@@ -50,11 +75,11 @@ func (p *Ppu) WriteRegister(address uint16, data byte) {
 
 	switch address {
 	case 0x0000: // PPU Control Register
-		break
+		p.registers.Control = data
 	case 0x0001: // PPU Mask Register
-		break
+		p.registers.Mask = data
 	case 0x0002: // PPU Status Register
-		break
+		p.registers.Status = data
 	case 0x0003: // OAM Address Register
 		break
 	case 0x0004: // OAM Data Register
@@ -62,10 +87,20 @@ func (p *Ppu) WriteRegister(address uint16, data byte) {
 	case 0x0005: // PPU Scroll Register
 		break
 	case 0x0006: // PPU Address Register
-		break
+		if p.addressLatch {
+			// If the address latch is set, we write the high byte.
+			p.address = (p.address & 0x00FF) | (uint16(data) << 8)
+		} else {
+			// If the address latch is not set, we write the low byte.
+			p.address = (p.address & 0xFF00) | uint16(data)
+			p.addressLatch = true
+		}
+		p.addressLatch = !p.addressLatch
 	case 0x0007: // PPU Data Register
-		break
+		p.bus.WriteByteAt(p.address, data)
 	}
+}
 
-	panic("PPU write not implemented")
+func (p *Ppu) Destroy() {
+	p.renderer.Destroy()
 }

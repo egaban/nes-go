@@ -29,8 +29,6 @@ func (b *Bus) WriteByteAt(address uint16, data byte) {
 	if b.cartridge.TryWriteChrAt(address, data) {
 		return
 	}
-
-	panic("Not implemented: PPU write operation")
 }
 
 func (b *Bus) loadCartridge(cartridge *cartridge.Cartridge) {

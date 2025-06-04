@@ -2,11 +2,19 @@ package cartridge
 
 import "errors"
 
+type NametableMirroringMode uint8
+
+const (
+	VerticalMirroring   = 0
+	HorizontalMirroring = 1
+)
+
 type Header struct {
-	NumPrgBanks int
-	NumChrBanks int
-	MapperId    byte
-	Format      int
+	NumPrgBanks        int
+	NumChrBanks        int
+	MapperId           byte
+	Format             int
+	NametableMirroring NametableMirroringMode
 }
 
 // Supported iNES formats
@@ -22,10 +30,11 @@ func NewHeader(data []byte) *Header {
 	}
 
 	return &Header{
-		NumPrgBanks: int(data[4]),
-		NumChrBanks: int(data[5]),
-		MapperId:    byte((data[6] >> 4) | (data[7] & 0xF0)),
-		Format:      format,
+		NumPrgBanks:        int(data[4]),
+		NumChrBanks:        int(data[5]),
+		MapperId:           byte((data[6] >> 4) | (data[7] & 0xF0)),
+		Format:             format,
+		NametableMirroring: NametableMirroringMode(data[6] & 0x01),
 	}
 }
 

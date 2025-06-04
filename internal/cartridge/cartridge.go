@@ -11,9 +11,10 @@ type Cartridge struct {
 	PrgRom []byte
 	ChrRom []byte
 
-	numPrgBanks int
-	numChrBanks int
-	mapper      mappers.Mapper
+	numPrgBanks   int
+	numChrBanks   int
+	mapper        mappers.Mapper
+	mirroringMode NametableMirroringMode
 }
 
 func LoadCartridge(filename string) (*Cartridge, error) {
@@ -29,9 +30,10 @@ func LoadCartridge(filename string) (*Cartridge, error) {
 
 	header := NewHeader(data[:16])
 	result := &Cartridge{
-		numPrgBanks: header.NumPrgBanks,
-		numChrBanks: header.NumChrBanks,
-		mapper:      mappers.NewMapper(header.MapperId, header.NumPrgBanks, header.NumChrBanks),
+		numPrgBanks:   header.NumPrgBanks,
+		numChrBanks:   header.NumChrBanks,
+		mapper:        mappers.NewMapper(header.MapperId, header.NumPrgBanks, header.NumChrBanks),
+		mirroringMode: header.NametableMirroring,
 	}
 
 	switch header.Format {
@@ -80,4 +82,8 @@ func (c *Cartridge) TryWriteChrAt(address uint16, data byte) bool {
 		return true
 	}
 	return false
+}
+
+func (c *Cartridge) GetNametableMirroring() NametableMirroringMode {
+	return c.mirroringMode
 }

@@ -1,6 +1,10 @@
 package ppu
 
-import "github.com/egaban/nesgo/internal/cartridge"
+import (
+	"fmt"
+
+	"github.com/egaban/nesgo/internal/cartridge"
+)
 
 type Bus struct {
 	cartridge *cartridge.Cartridge
@@ -38,7 +42,18 @@ func (b *Bus) ReadByteAt(address uint16) byte {
 		return b.nametableVRAM[effectiveAddress]
 	}
 
-	panic("Not implemented: PPU palette (and mirror)")
+	// Palette VRAM (0x3F00-0x3FFF)
+	if address >= 0x3F00 {
+		offset := address & 0x001F // Range 0-31
+		// Every 4th byte is a background mirror (indices 0x00, 0x04, 0x08, 0x0C).
+		if offset&0x03 == 0 {
+			offset &= 0x0F
+		}
+		return b.paletteVRAM[offset]
+	}
+
+	panic(fmt.Sprintf("Invalid PPU read address: 0x%04X. Not found in cartridge.",
+		address))
 }
 
 func (b *Bus) WriteByteAt(address uint16, data byte) {

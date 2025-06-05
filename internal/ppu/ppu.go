@@ -12,15 +12,15 @@ type Ppu struct {
 	registers Registers
 	renderer  *sdl.Renderer
 
-	isLowByteWrite bool
-	dataBuffer     byte
-	address        uint16
+	firstWrite bool
+	dataBuffer byte
 }
 
 func NewPpu(renderer *sdl.Renderer) *Ppu {
 	return &Ppu{
-		bus:      newPpuBus(),
-		renderer: renderer,
+		bus:        newPpuBus(),
+		renderer:   renderer,
+		firstWrite: true,
 	}
 }
 
@@ -49,7 +49,7 @@ func (p *Ppu) ReadRegister(address uint16) byte {
 		p.registers.Status |= statusVerticalBlank // TEMPORARY
 		result := (p.registers.Status & 0xE0) | (p.dataBuffer & 0x1F)
 		p.registers.Status &^= statusVerticalBlank
-		p.isLowByteWrite = false
+		p.firstWrite = true
 		return result
 	case 0x0003: // OAM Address Register
 		slog.Warn("Trying to read OAM Address Register from the CPU")
@@ -82,29 +82,20 @@ func (p *Ppu) WriteRegister(address uint16, data byte) {
 
 	switch address {
 	case 0x0000: // PPU Control Register
-		// TODO: writes to this register are ignored until the first pre-render scanline
 		p.registers.Control = data
 	case 0x0001: // PPU Mask Register
-		// TODO: writes to this register are ignored until the first pre-render scanline
 		p.registers.Mask = data
 	case 0x0002: // PPU Status Register
+		p.firstWrite = false
 		slog.Warn("Trying to write read-only PPU Status Register from the CPU")
 	case 0x0003: // OAM Address Register
 		break
 	case 0x0004: // OAM Data Register
 		break
 	case 0x0005: // PPU Scroll Register
-		break
+		p.setScrollRegister(data)
 	case 0x0006: // PPU Address Register
-		if p.isLowByteWrite {
-			// If the address latch is set, we write the high byte.
-			p.address = (p.address & 0x00FF) | (uint16(data) << 8)
-		} else {
-			// If the address latch is not set, we write the low byte.
-			p.address = (p.address & 0xFF00) | uint16(data)
-			p.isLowByteWrite = true
-		}
-		p.isLowByteWrite = !p.isLowByteWrite
+		p.setAddressRegister(data)
 	case 0x0007: // PPU Data Register
 		p.bus.WriteByteAt(p.address, data)
 	}

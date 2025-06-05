@@ -11,6 +11,7 @@ type Bus struct {
 
 	nametableVRAM [2048]byte // Two name tables, each 1024 bytes
 	paletteVRAM   [32]byte   // Palette memory, 32 bytes
+	oam           [256]byte
 }
 
 func newPpuBus() Bus {

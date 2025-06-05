@@ -7,6 +7,9 @@ type Registers struct {
 	Scroll  uint8 // $2005
 	Address uint8 // $2006
 	Data    uint8 // $2007
+	t       uint16
+	v       uint16
+	x       byte // Fine X scroll
 }
 
 const (

@@ -52,6 +52,8 @@ func (p *Ppu) WriteRegister(address uint16, data byte) {
 	switch address {
 	case 0x0000: // PPU Control Register
 		p.registers.control = data
+		p.registers.t &^= 0x0C00                   // Clear bits 10-11
+		p.registers.t |= (uint16(data&0x03) << 10) // Set bits 10-11 based on control register
 	case 0x0001: // PPU Mask Register
 		p.registers.mask = data
 	case 0x0002: // PPU Status Register

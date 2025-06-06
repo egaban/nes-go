@@ -3,8 +3,8 @@ package ppu
 import (
 	"log/slog"
 
-	"github.com/egaban/nesgo/internal/cartridge"
-	"github.com/egaban/nesgo/internal/sdl"
+	"github.com/egaban/nes-go/internal/cartridge"
+	"github.com/egaban/nes-go/internal/sdl"
 )
 
 type Ppu struct {

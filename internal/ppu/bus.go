@@ -3,7 +3,7 @@ package ppu
 import (
 	"fmt"
 
-	"github.com/egaban/nesgo/internal/cartridge"
+	"github.com/egaban/nes-go/internal/cartridge"
 )
 
 type Bus struct {

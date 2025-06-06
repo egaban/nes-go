@@ -3,11 +3,11 @@ package nes
 import (
 	"time"
 
-	"github.com/egaban/nesgo/internal/bus"
-	"github.com/egaban/nesgo/internal/cartridge"
-	"github.com/egaban/nesgo/internal/cpu"
-	"github.com/egaban/nesgo/internal/ppu"
-	"github.com/egaban/nesgo/internal/sdl"
+	"github.com/egaban/nes-go/internal/bus"
+	"github.com/egaban/nes-go/internal/cartridge"
+	"github.com/egaban/nes-go/internal/cpu"
+	"github.com/egaban/nes-go/internal/ppu"
+	"github.com/egaban/nes-go/internal/sdl"
 )
 
 type Emulator struct {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/egaban/nesgo/internal/cartridge/mappers"
+	"github.com/egaban/nes-go/internal/cartridge/mappers"
 )
 
 type Cartridge struct {

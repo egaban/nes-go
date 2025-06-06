@@ -1,8 +1,8 @@
 package bus
 
 import (
-	"github.com/egaban/nesgo/internal/cartridge"
-	"github.com/egaban/nesgo/internal/interfaces"
+	"github.com/egaban/nes-go/internal/cartridge"
+	"github.com/egaban/nes-go/internal/interfaces"
 )
 
 type CpuBus struct {

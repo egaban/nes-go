@@ -1,6 +1,6 @@
 package ppu
 
-import "github.com/egaban/nesgo/internal/sdl"
+import "github.com/egaban/nes-go/internal/sdl"
 
 func (p *Ppu) getPatternTable(patternTable int) [256][16]byte {
 	if patternTable < 0 || patternTable > 1 {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/egaban/nesgo/internal/cartridge"
-	"github.com/egaban/nesgo/internal/nes"
+	"github.com/egaban/nes-go/internal/cartridge"
+	"github.com/egaban/nes-go/internal/nes"
 )
 
 // MacOS requires the main thread to be locked to the OS thread

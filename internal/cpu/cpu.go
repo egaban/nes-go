@@ -3,7 +3,7 @@ package cpu
 import (
 	"fmt"
 
-	"github.com/egaban/nesgo/internal/bus"
+	"github.com/egaban/nes-go/internal/bus"
 )
 
 type Cpu struct {

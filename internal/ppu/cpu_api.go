@@ -31,15 +31,13 @@ func (p *Ppu) ReadRegister(address uint16) byte {
 		slog.Warn("Trying to read PPU Address Register from the CPU")
 		return 0
 	case 0x0007: // PPU Data Register
-		// result := p.dataBuffer
-		return 0
-		// p.dataBuffer = p.bus.ReadByteAt(p.address)
-
-		// if p.address < 0x3F00 {
-		// 	result = p.dataBuffer
-		// }
-
-		// return result
+		result := p.bus.ReadByteAt(p.registers.v)
+		if p.registers.control&controlIncrement == 0 {
+			p.registers.v += 1
+		} else {
+			p.registers.v += 32
+		}
+		return result
 	default:
 		panic("Unknown PPU register address")
 	}
@@ -58,11 +56,11 @@ func (p *Ppu) WriteRegister(address uint16, data byte) {
 		p.registers.mask = data
 	case 0x0002: // PPU Status Register
 		p.firstWrite = false
-		slog.Warn("Trying to write read-only PPU Status Register from the CPU")
+		slog.Warn("Write to $2002 (PPU Status Register) skipped")
 	case 0x0003: // OAM Address Register
-		break
+		slog.Warn("Write to $2003 (OAM Address Register) skipped")
 	case 0x0004: // OAM Data Register
-		break
+		slog.Warn("Write to $2004 (OAM Data Register) skipped")
 	case 0x0005: // PPU Scroll Register
 		p.setScrollRegister(data)
 	case 0x0006: // PPU Address Register

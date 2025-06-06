@@ -1,12 +1,9 @@
 package ppu
 
 type Registers struct {
-	Control uint8 // $2000
-	Mask    uint8 // $2001
-	Status  uint8 // $2002
-	Scroll  uint8 // $2005
-	Address uint8 // $2006
-	Data    uint8 // $2007
+	control uint8
+	mask    uint8
+	status  uint8
 	t       uint16
 	v       uint16
 	x       byte // Fine X scroll

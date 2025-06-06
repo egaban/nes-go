@@ -11,7 +11,6 @@ type Ppu struct {
 	renderer  *sdl.Renderer
 
 	firstWrite bool
-	dataBuffer byte
 }
 
 func NewPpu(renderer *sdl.Renderer) *Ppu {

@@ -14,8 +14,7 @@ func (p *Ppu) ReadRegister(address uint16) byte {
 		slog.Warn("Trying to read PPU Mask Register from the CPU")
 		return 0
 	case 0x0002: // PPU Status Register
-		p.registers.status |= statusVerticalBlank // TEMPORARY
-		result := (p.registers.status & 0xE0) | (p.dataBuffer & 0x1F)
+		result := (p.registers.status & 0xE0)
 		p.registers.status &^= statusVerticalBlank
 		p.firstWrite = true
 		return result
